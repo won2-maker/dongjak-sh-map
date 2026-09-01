@@ -1,253 +1,557 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>동작구 SH 임대아파트 답사</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR',-apple-system,sans-serif;display:flex;height:100vh;overflow:hidden}
-#map{flex:1}
-#panel{
-  width:280px;flex-shrink:0;background:#fff;display:flex;flex-direction:column;
-  border-left:1px solid #dde5ef;overflow:hidden;
-}
-#ph{padding:14px 16px 11px;border-bottom:1px solid #edf1f6;flex-shrink:0}
-#ph h1{font-size:14px;font-weight:700;color:#0b1724;margin-bottom:2px}
-#ph p{font-size:11px;color:#92a3b5}
-#status{
-  padding:8px 16px;background:#fffbeb;border-bottom:1px solid #fde68a;
-  font-size:11px;color:#92400e;display:flex;align-items:center;gap:8px;flex-shrink:0;
-}
-#status.done{background:#f0fdf4;border-color:#86efac;color:#166534}
-#status.done::before{content:'✓ ';font-weight:700}
-.spin{
-  width:14px;height:14px;border:2px solid #fde68a;border-top-color:#d97706;
-  border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-#list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#dde5ef transparent}
-#list::-webkit-scrollbar{width:3px}
-#list::-webkit-scrollbar-thumb{background:#dde5ef;border-radius:2px}
-.si{
-  display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid #f4f7fb;
-  cursor:pointer;transition:background .1s;align-items:flex-start;
-}
-.si:hover{background:#f8fafd}
-.si.act{background:#eff5fd;border-left:3px solid var(--c);padding-left:13px}
-.si-num{
-  width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:800;
-  font-family:'Courier New',monospace;color:#fff;flex-shrink:0;margin-top:1px;
-  display:flex;align-items:center;justify-content:center;background:var(--c);
-}
-.si-body{flex:1;min-width:0}
-.si-name{font-size:12px;font-weight:700;color:#0b1724;line-height:1.3}
-.si-sub{font-size:9px;font-weight:400;color:#a0b0c0}
-.si-addr{font-size:10px;color:#a0afc0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.si-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
-.tg{padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700}
-.t50{background:#e6f0fb;color:#2765b0}
-.tjt{background:#efe8fb;color:#6830b0}
-.thb{background:#e6f9f2;color:#1a7a52}
-.tp1{background:rgba(16,217,158,.15);color:#0b8f60}
-.tp2{background:rgba(77,158,247,.15);color:#2060c0}
-.tp3{background:rgba(245,166,35,.15);color:#a06000}
-.si-loading{font-size:9px;color:#aaa;margin-top:4px}
-.si-info{font-size:10px;color:#6080a0;margin-top:4px;font-weight:600}
-#leg{padding:9px 16px;border-top:1px solid #edf1f6;display:flex;gap:14px;background:#fafbfd;flex-shrink:0}
-.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:#7080a0;font-weight:600}
-.ld{width:9px;height:9px;border-radius:50%}
-/* leaflet popup */
-.leaflet-popup-content{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:12px;line-height:1.6;min-width:160px}
-.lp-name{font-weight:700;font-size:13px;color:#0b1724;margin-bottom:4px}
-.lp-addr{font-size:10px;color:#888;margin-bottom:6px}
-.lp-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
-.lp-btn{
-  display:block;text-align:center;padding:5px 0;background:#fee;border-radius:5px;
-  color:#d03;font-size:11px;font-weight:700;text-decoration:none;
-}
-.lp-btn:hover{background:#fcc}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동작구 SH 임대아파트 답사</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F2F4F6;
+      color: #191F28;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── 사이드바 ─── */
+    #sidebar {
+      width: 400px;
+      min-width: 360px;
+      display: flex;
+      flex-direction: column;
+      background: #F2F4F6;
+      overflow: hidden;
+      border-right: 1px solid #E5E8EB;
+      z-index: 10;
+    }
+
+    /* 헤더 */
+    #header {
+      background: #FFFFFF;
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid #F2F4F6;
+    }
+    #header h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #191F28;
+      letter-spacing: -0.5px;
+    }
+    .sub-text {
+      font-size: 12px;
+      color: #8B95A1;
+      margin-top: 3px;
+    }
+    .stats-row {
+      display: flex;
+      gap: 7px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #F2F4F6;
+      border-radius: 20px;
+      padding: 5px 11px;
+      font-size: 11px;
+      color: #4E5968;
+      font-weight: 700;
+    }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; }
+    #share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: #3182F6;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      width: 100%;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    #share-btn:hover { background: #1b6ef3; }
+
+    /* 필터 탭 */
+    #filter-bar {
+      display: flex;
+      gap: 6px;
+      padding: 11px 14px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E8EB;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      padding: 6px 13px;
+      border-radius: 20px;
+      border: 1.5px solid #E5E8EB;
+      background: #FFFFFF;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8B95A1;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .filter-btn.active {
+      background: #191F28;
+      border-color: #191F28;
+      color: #FFFFFF;
+    }
+
+    /* 리스트 */
+    #list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #E5E8EB transparent;
+    }
+    #list::-webkit-scrollbar { width: 4px; }
+    #list::-webkit-scrollbar-track { background: transparent; }
+    #list::-webkit-scrollbar-thumb { background: #E5E8EB; border-radius: 4px; }
+
+    /* 카드 */
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .card.focused { border-color: #3182F6; }
+
+    .card-main {
+      display: flex;
+      align-items: flex-start;
+      padding: 14px 14px 12px;
+      gap: 11px;
+    }
+
+    /* 아바타 */
+    .avatar-wrap { position: relative; flex-shrink: 0; }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      border: 2.5px solid #E5E8EB;
+    }
+    .avatar.julian { border-color: #2b4a8a; }
+    .avatar.mufasa { border-color: #c67c00; }
+    .avatar-fb {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .pri-dot {
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2.5px solid #FFFFFF;
+      font-size: 9px; font-weight: 800;
+      color: #FFFFFF;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* 카드 정보 */
+    .card-content { flex: 1; min-width: 0; }
+    .name-row {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .card-num { font-size: 11px; font-weight: 700; color: #B0B8C1; }
+    .card-name { font-size: 14px; font-weight: 800; color: #191F28; letter-spacing: -0.3px; }
+    .card-sub { font-size: 11px; color: #B0B8C1; }
+
+    .badge-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .badge { padding: 3px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+    .bt-50 { background:#EEF3FF; color:#3182F6; }
+    .bt-장기 { background:#FFF4E8; color:#F38701; }
+    .bt-행복 { background:#E8FFF5; color:#00B493; }
+    .bp-1 { background:#FFF0F0; color:#F04452; }
+    .bp-2 { background:#FFF8E8; color:#E08000; }
+    .bp-3 { background:#F2F4F6; color:#8B95A1; }
+    .bm { background:#FFF4E8; color:#F38701; }
+
+    .rental-row { display: flex; align-items: center; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+    .rental-label { color: #B0B8C1; font-size: 11px; }
+    .rental-val { font-weight: 800; }
+    .rv-ok { color: #00B493; }
+    .rv-chk { color: #F38701; }
+
+    .memo-preview {
+      margin-top: 7px;
+      font-size: 11px;
+      color: #8B95A1;
+      background: #F2F4F6;
+      padding: 5px 9px;
+      border-radius: 7px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 확장 영역 */
+    .card-expand { display: none; border-top: 1px solid #F2F4F6; }
+    .card.open .card-expand { display: block; }
+
+    .memo-section { padding: 12px 14px; background: #FAFBFC; }
+    .memo-label { font-size: 11px; font-weight: 700; color: #8B95A1; margin-bottom: 7px; }
+    .memo-ta {
+      width: 100%;
+      min-height: 76px;
+      padding: 10px 12px;
+      border: 1.5px solid #E5E8EB;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #191F28;
+      resize: vertical;
+      outline: none;
+      background: #FFFFFF;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    .memo-ta::placeholder { color: #C7CDD6; }
+    .memo-ta:focus { border-color: #3182F6; }
+    .memo-status {
+      font-size: 10px; color: #00B493;
+      margin-top: 4px; height: 14px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .memo-status.show { opacity: 1; }
+
+    .naver-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 12px;
+      background: #03C75A;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .naver-btn:hover { background: #02b34e; }
+
+    /* 지도 */
+    #map { flex: 1; height: 100vh; }
+
+    /* 팝업 커스텀 */
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+    .leaflet-popup-content { margin: 0 !important; }
+    .leaflet-popup-tip-container { display: none; }
+
+    /* 토스트 */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #191F28;
+      color: #FFFFFF;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 13px; font-weight: 700;
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+      z-index: 9999;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 로딩 바 */
+    #loading-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 3px; background: #3182F6;
+      width: 0%; transition: width 0.4s ease;
+      z-index: 9998;
+    }
+  </style>
 </head>
 <body>
 
-<div id="map"></div>
+<div id="loading-bar"></div>
+<div id="toast"></div>
 
-<div id="panel">
-  <div id="ph">
+<div id="sidebar">
+  <div id="header">
     <h1>동작구 SH 임대아파트 답사</h1>
-    <p>12개 단지 · SH공사 · 공유주차 검토</p>
+    <div class="sub-text">12개 단지 · SH공사 · 공유주차 검토</div>
+    <div class="stats-row" id="stats-row"></div>
+    <button id="share-btn" onclick="shareMemos()">📋 메모 URL 복사 — 다른 담당자와 공유</button>
   </div>
-  <div id="status"><div class="spin"></div><span id="stxt">주소 좌표 변환 중… (0/12)</span></div>
+
+  <div id="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all',this)">전체</button>
+    <button class="filter-btn" onclick="setFilter('무파사',this)">🦁 무파사</button>
+    <button class="filter-btn" onclick="setFilter('율리안',this)">🎖 율리안</button>
+    <button class="filter-btn" onclick="setFilter('check',this)">⚠️ 현장확인</button>
+    <button class="filter-btn" onclick="setFilter('confirmed',this)">✅ 확인완료</button>
+  </div>
+
   <div id="list"></div>
-  <div id="leg">
-    <div class="leg"><div class="ld" style="background:#10d99e"></div>1순위</div>
-    <div class="leg"><div class="ld" style="background:#4d9ef7"></div>2순위</div>
-    <div class="leg"><div class="ld" style="background:#f5a623"></div>3순위</div>
-  </div>
 </div>
 
+<div id="map"></div>
+
 <script>
+const MUFASA_IMG = './mufasa_s.png';
+const JULIAN_IMG = './julian_s.png';
+const PERSON_COLOR = { '무파사':'#c67c00', '율리안':'#2b4a8a' };
+const PERSON_EMOJI = { '무파사':'🦁', '율리안':'🎖' };
+const PRI_COLOR = { 1:'#F04452', 2:'#E08000', 3:'#8B95A1' };
+const PRI_LABEL = { 1:'1순위', 2:'2순위', 3:'3순위' };
+const TYPE_CLASS = { '50년임대':'bt-50', '장기전세':'bt-장기', '행복주택':'bt-행복' };
+
 const DATA = [
-  { id:1,  name:'상도삼호',                sub:'상도5',    addr:'서울특별시 동작구 상도로 407',         type:'50년임대', pri:1, dongs:5,    units:682,  person:'무파사', rentalDongs:'전체 (5개동)', mixed:false },
-  { id:2,  name:'상도건영',                sub:'본동2-2',  addr:'서울특별시 동작구 만양로 26',           type:'50년임대', pri:2, dongs:6,    units:824,  person:'율리안', rentalDongs:'전체 (6개동)', mixed:false },
-  { id:3,  name:'상도신동아',              sub:'상도1',    addr:'서울특별시 동작구 만양로 19',           type:'50년임대', pri:2, dongs:null, units:null, person:'율리안', rentalDongs:'전체 (현장확인)', mixed:false },
-  { id:4,  name:'상도래미안1차',           sub:'상도2',    addr:'서울특별시 동작구 등용로 37',           type:'50년임대', pri:2, dongs:null, units:517,  person:'율리안', rentalDongs:'전체 (현장확인)', mixed:false },
-  { id:5,  name:'상도SH-ville',            sub:'',         addr:'서울특별시 동작구 상도로53길 70',       type:'50년임대', pri:1, dongs:4,    units:953,  person:'무파사', rentalDongs:'전체 (4개동)', mixed:false },
-  { id:6,  name:'흑석한강센트레빌',        sub:'흑석5',    addr:'서울특별시 동작구 흑석한강로 12',       type:'50년임대', pri:1, dongs:null, units:655,  person:'무파사', rentalDongs:'전체 (현장확인)', mixed:false },
-  { id:7,  name:'래미안트윈파크',          sub:'본동5',    addr:'서울특별시 동작구 노량진로23가길 23',   type:'50년임대', pri:2, dongs:5,    units:523,  person:'무파사', rentalDongs:'104동', mixed:true },
-  { id:8,  name:'흑석한강푸르지오',        sub:'흑석4',    addr:'서울특별시 동작구 흑석한강로 27',       type:'50년임대', pri:3, dongs:14,   units:863,  person:'무파사', rentalDongs:'전체 (14개동)', mixed:false },
-  { id:9,  name:'상도두산위브트레지움',    sub:'',         addr:'서울특별시 동작구 상도로30길 40',       type:'장기전세', pri:2, dongs:6,    units:582,  person:'율리안', rentalDongs:'현장확인 필요', mixed:true },
-  { id:10, name:'상도동효성해링턴플레이스',sub:'',         addr:'서울특별시 동작구 상도로 207',          type:'장기전세', pri:2, dongs:null, units:null, person:'율리안', rentalDongs:'현장확인 필요', mixed:true },
-  { id:11, name:'아크로리버하임',          sub:'흑석7',    addr:'서울특별시 동작구 현충로 52',           type:'50년임대', pri:1, dongs:20,   units:null, person:'무파사', rentalDongs:'현장확인 필요 (162세대)', mixed:true },
-  { id:12, name:'보라매자이',              sub:'',         addr:'서울특별시 동작구 여의대방로22길 121',  type:'행복주택', pri:1, dongs:8,    units:null, person:'율리안', rentalDongs:'전체 (8개동)', mixed:false },
+  { id:1,  name:'상도삼호',                sub:'상도5',   addr:'서울특별시 동작구 상도로 407',        type:'50년임대', pri:1, dongs:5,    units:682,  person:'무파사', rentalDongs:'전체 (5개동)',        rentalConfirmed:true,  mixed:false },
+  { id:2,  name:'상도건영',                sub:'본동2-2', addr:'서울특별시 동작구 만양로 26',          type:'50년임대', pri:2, dongs:6,    units:824,  person:'율리안', rentalDongs:'전체 (6개동)',        rentalConfirmed:true,  mixed:false },
+  { id:3,  name:'상도신동아',              sub:'상도1',   addr:'서울특별시 동작구 만양로 19',          type:'50년임대', pri:2, dongs:null, units:null, person:'율리안', rentalDongs:'현장확인',            rentalConfirmed:false, mixed:false },
+  { id:4,  name:'상도래미안1차',           sub:'상도2',   addr:'서울특별시 동작구 등용로 37',          type:'50년임대', pri:2, dongs:null, units:517,  person:'율리안', rentalDongs:'현장확인',            rentalConfirmed:false, mixed:false },
+  { id:5,  name:'상도SH-ville',            sub:'',        addr:'서울특별시 동작구 상도로53길 70',      type:'50년임대', pri:1, dongs:4,    units:953,  person:'무파사', rentalDongs:'전체 (4개동)',        rentalConfirmed:true,  mixed:false },
+  { id:6,  name:'흑석한강센트레빌',        sub:'흑석5',   addr:'서울특별시 동작구 흑석한강로 12',      type:'50년임대', pri:1, dongs:null, units:655,  person:'무파사', rentalDongs:'현장확인',            rentalConfirmed:false, mixed:false },
+  { id:7,  name:'래미안트윈파크',          sub:'본동5',   addr:'서울특별시 동작구 노량진로23가길 23',  type:'50년임대', pri:2, dongs:5,    units:523,  person:'무파사', rentalDongs:'104동',              rentalConfirmed:true,  mixed:true  },
+  { id:8,  name:'흑석한강푸르지오',        sub:'흑석4',   addr:'서울특별시 동작구 흑석한강로 27',      type:'50년임대', pri:3, dongs:14,   units:863,  person:'무파사', rentalDongs:'전체 (14개동)',       rentalConfirmed:true,  mixed:false },
+  { id:9,  name:'상도두산위브트레지움',    sub:'',        addr:'서울특별시 동작구 상도로30길 40',      type:'장기전세', pri:2, dongs:6,    units:582,  person:'율리안', rentalDongs:'현장확인',            rentalConfirmed:false, mixed:true  },
+  { id:10, name:'상도동효성해링턴플레이스',sub:'',        addr:'서울특별시 동작구 상도로 207',         type:'장기전세', pri:2, dongs:null, units:null, person:'율리안', rentalDongs:'현장확인',            rentalConfirmed:false, mixed:true  },
+  { id:11, name:'아크로리버하임',          sub:'흑석7',   addr:'서울특별시 동작구 현충로 52',          type:'50년임대', pri:1, dongs:20,   units:null, person:'무파사', rentalDongs:'현장확인 (162세대)',  rentalConfirmed:false, mixed:true  },
+  { id:12, name:'보라매자이',              sub:'',        addr:'서울특별시 동작구 여의대방로22길 121', type:'행복주택', pri:1, dongs:8,    units:null, person:'율리안', rentalDongs:'전체 (8개동)',        rentalConfirmed:true,  mixed:false },
 ];
 
-const PERSON_COLOR = { '율리안':'#2b4a8a', '무파사':'#c67c00' };
-const PERSON_EMOJI = { '율리안':'🎖', '무파사':'🦁' };
-
-function personImgSrc(person) {
-  const col = encodeURIComponent(PERSON_COLOR[person]);
-  const em = PERSON_EMOJI[person];
-  return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="${PERSON_COLOR[person]}" stroke="white" stroke-width="4"/><text x="40" y="54" text-anchor="middle" font-size="40" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">${em}</text></svg>`)}`;
+// ─── 메모 관리 ───
+let memos = {};
+function loadMemos() {
+  const enc = new URLSearchParams(window.location.search).get('memos');
+  if (enc) {
+    try { memos = JSON.parse(decodeURIComponent(atob(enc))); localStorage.setItem('dongjak_memos', JSON.stringify(memos)); } catch(e) {}
+  } else {
+    try { memos = JSON.parse(localStorage.getItem('dongjak_memos') || '{}'); } catch(e) {}
+  }
+}
+const memoTimers = {};
+function saveMemoDebounce(id, text) {
+  clearTimeout(memoTimers[id]);
+  memoTimers[id] = setTimeout(() => {
+    memos[id] = text;
+    localStorage.setItem('dongjak_memos', JSON.stringify(memos));
+    const st = document.getElementById('ms-' + id);
+    if (st) { st.classList.add('show'); setTimeout(() => st.classList.remove('show'), 1500); }
+    const prev = document.getElementById('prev-' + id);
+    if (prev) { prev.style.display = text.trim() ? 'block' : 'none'; prev.textContent = text; }
+  }, 400);
+}
+function shareMemos() {
+  const enc = btoa(encodeURIComponent(JSON.stringify(memos)));
+  const url = location.origin + location.pathname + '?memos=' + enc;
+  navigator.clipboard.writeText(url).then(() => showToast('✅ 메모 URL 복사됨! 카카오톡으로 공유하세요'));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-const C = { 1:'#10d99e', 2:'#4d9ef7', 3:'#f5a623' };
-const PRI = { 1:'1순위', 2:'2순위', 3:'3순위' };
-const TCLS = { '50년임대':'t50','장기전세':'tjt','행복주택':'thb' };
-const PCLS = { 1:'tp1', 2:'tp2', 3:'tp3' };
+// ─── 필터 ───
+let currentFilter = 'all';
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
 
-// Init map centered on Dongjak-gu
-const map = L.map('map', {zoomControl:true}).setView([37.502, 126.947], 14);
+// ─── 지도 ───
+const map = L.map('map').setView([37.495, 126.940], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  maxZoom:19
+  attribution: '© OpenStreetMap contributors', maxZoom: 19
 }).addTo(map);
+const markers = {};
 
-const markerMap = {};
-let loadedCount = 0;
-
-// Build sidebar items first
-const listEl = document.getElementById('list');
-DATA.forEach(d => {
-  const div = document.createElement('div');
-  div.className='si'; div.id=`si${d.id}`;
-  div.style.setProperty('--c', C[d.pri]);
-  div.innerHTML=`
-    <div class="si-num">${d.id}</div>
-    <div class="si-body">
-      <div class="si-name">
-        <span style="font-size:11px;font-weight:800;padding:1px 5px;border-radius:3px;background:${PERSON_COLOR[d.person]};color:#fff;margin-right:5px">${d.person}</span>${d.name}${d.sub?` <span class="si-sub">(${d.sub})</span>`:''}
-      </div>
-      <div class="si-addr">${d.addr}</div>
-      <div class="si-tags">
-        <span class="tg ${TCLS[d.type]}">${d.type}</span>
-        <span class="tg ${PCLS[d.pri]}">${PRI[d.pri]}</span>
-      </div>
-      <div class="si-info">
-        <span style="color:#888">임대동:</span> <span style="color:${d.mixed?'#c05000':'#1a6a3a'};font-weight:700">${d.rentalDongs}</span>
-      </div>
-      <div class="si-loading" id="ld${d.id}">좌표 변환 중…</div>
-    </div>`;
-  div.onclick = () => {
-    if(markerMap[d.id]) markerMap[d.id].openPopup();
-    selectItem(d.id);
-  };
-  listEl.appendChild(div);
-});
-
-// Nominatim geocode (rate-limited 1/sec)
-async function geocode(addr) {
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1&countrycodes=kr`;
-  try {
-    const res = await fetch(url, {headers:{'Accept-Language':'ko'}});
-    const data = await res.json();
-    if(data.length) return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  } catch(e) {}
-  return null;
-}
-
-function makeIcon(d) {
-  const col = C[d.pri];
-  const pcol = PERSON_COLOR[d.person];
-  const emoji = PERSON_EMOJI[d.person];
-  const imgHtml = `<img src="${personImgSrc(d.person)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid ${pcol}"/>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
-    <path d="M14 0C6.27 0 0 6.27 0 14c0 9.63 14 26 14 26S28 23.63 28 14C28 6.27 21.73 0 14 0z" fill="${col}"/>
-    <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
-  </svg>`;
+function makeMarkerIcon(d) {
+  const col = PERSON_COLOR[d.person];
+  const img = d.person === '무파사' ? MUFASA_IMG : JULIAN_IMG;
   return L.divIcon({
-    className:'',
-    html:`<div style="position:relative;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))">
-      ${svg}
-      <div style="position:absolute;top:-32px;left:50%;transform:translateX(-50%)">${imgHtml}</div>
+    className: '',
+    html: `<div style="position:relative;filter:drop-shadow(0 3px 8px rgba(0,0,0,.28))">
+      <div style="width:46px;height:46px;border-radius:50%;border:3px solid ${col};overflow:hidden;background:#fff">
+        <img src="${img}" style="width:100%;height:100%;object-fit:cover"/>
+      </div>
+      <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:${PRI_COLOR[d.pri]};border:2.5px solid #fff;font-size:9px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">${d.pri}</div>
     </div>`,
-    iconSize:[28,72], iconAnchor:[14,72], popupAnchor:[0,-74]
+    iconSize:[46,46], iconAnchor:[23,23], popupAnchor:[0,-30]
   });
 }
 
-function naverUrl(name, addr) {
-  return `https://map.naver.com/v5/search/${encodeURIComponent(name + ' ' + addr)}`;
+function naverUrl(d) {
+  return `https://map.naver.com/v5/search/${encodeURIComponent(d.name+' '+d.addr)}`;
 }
 
-async function loadAll() {
-  for(const d of DATA) {
-    const coords = await geocode(d.addr);
-    loadedCount++;
-    document.getElementById('stxt').textContent = `주소 좌표 변환 중… (${loadedCount}/12)`;
+function makePopup(d) {
+  const img = d.person === '무파사' ? MUFASA_IMG : JULIAN_IMG;
+  const col = PERSON_COLOR[d.person];
+  const ok = d.rentalConfirmed;
+  return `<div style="font-family:'Apple SD Gothic Neo',sans-serif;width:240px">
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 16px 12px">
+      <img src="${img}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2.5px solid ${col};flex-shrink:0"/>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#191F28">${d.id}. ${d.name}</div>
+        <div style="font-size:11px;color:#8B95A1;margin-top:2px">${d.sub?d.sub+' · ':''}${d.type}</div>
+      </div>
+    </div>
+    <div style="margin:0 16px 12px;padding:9px 12px;border-radius:10px;background:${ok?'#E8FFF5':'#FFF4E8'}">
+      <div style="font-size:10px;font-weight:700;color:${ok?'#00B493':'#F38701'};margin-bottom:3px">임대동${d.mixed?' (혼합단지)':''}</div>
+      <div style="font-size:13px;font-weight:800;color:${ok?'#00B493':'#F38701'}">${ok?'✅':'⚠️'} ${d.rentalDongs}</div>
+    </div>
+    <div style="font-size:10px;color:#B0B8C1;padding:0 16px 12px;line-height:1.5">${d.addr}</div>
+    <a href="${naverUrl(d)}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px;background:#03C75A;color:#fff;text-decoration:none;font-size:13px;font-weight:700;font-family:inherit">🗺️ 네이버 지도에서 보기</a>
+  </div>`;
+}
 
-    const ldEl = document.getElementById(`ld${d.id}`);
+// ─── 카드 렌더 ───
+function renderList() {
+  const filtered = DATA.filter(d => {
+    if (currentFilter === '무파사') return d.person === '무파사';
+    if (currentFilter === '율리안') return d.person === '율리안';
+    if (currentFilter === 'check') return !d.rentalConfirmed;
+    if (currentFilter === 'confirmed') return d.rentalConfirmed;
+    return true;
+  });
 
-    if(coords) {
-      const marker = L.marker(coords, {icon: makeIcon(d)}).addTo(map);
-      marker.bindPopup(`
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <img src="${personImgSrc(d.person)}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"/>
-          <div>
-            <div style="font-size:10px;font-weight:800;color:${PERSON_COLOR[d.person]}">${d.person} 담당</div>
-            <div class="lp-name" style="margin-bottom:0">${d.name}${d.sub?` <span style="font-size:10px;font-weight:400;color:#999">(${d.sub})</span>`:''}</div>
+  document.getElementById('list').innerHTML = filtered.map(d => {
+    const col = PERSON_COLOR[d.person];
+    const img = d.person === '무파사' ? MUFASA_IMG : JULIAN_IMG;
+    const pClass = d.person === '무파사' ? 'mufasa' : 'julian';
+    const ok = d.rentalConfirmed;
+    const memo = memos[d.id] || '';
+    return `<div class="card" id="card-${d.id}" onclick="toggleCard(${d.id})">
+      <div class="card-main">
+        <div class="avatar-wrap">
+          <img class="avatar ${pClass}" src="${img}"
+            onerror="this.outerHTML='<div class=\\"avatar-fb\\" style=\\"background:${col}22\\">${PERSON_EMOJI[d.person]}</div>'"/>
+          <div class="pri-dot" style="background:${PRI_COLOR[d.pri]}">${d.pri}</div>
+        </div>
+        <div class="card-content">
+          <div class="name-row">
+            <span class="card-num">${d.id}.</span>
+            <span class="card-name">${d.name}</span>
+            ${d.sub?`<span class="card-sub">${d.sub}</span>`:''}
           </div>
+          <div class="badge-row">
+            <span class="badge ${TYPE_CLASS[d.type]}">${d.type}</span>
+            <span class="badge bp-${d.pri}">${PRI_LABEL[d.pri]}</span>
+            ${d.mixed?'<span class="badge bm">혼합단지</span>':''}
+          </div>
+          <div class="rental-row">
+            <span class="rental-label">임대동</span>
+            <span class="rental-val ${ok?'rv-ok':'rv-chk'}">${ok?'✅':'⚠️'} ${d.rentalDongs}</span>
+          </div>
+          <div class="memo-preview" id="prev-${d.id}" style="${memo?'':'display:none'}">${memo}</div>
         </div>
-        <div class="lp-addr">${d.addr}</div>
-        <div class="lp-tags">
-          <span class="tg ${TCLS[d.type]}">${d.type}</span>
-          <span class="tg ${PCLS[d.pri]}">${PRI[d.pri]}</span>
-        </div>
-        <div style="font-size:11px;color:#4070b0;font-weight:600;margin-bottom:8px">${d.dongs?`${d.dongs}동`:'동수 미확인'}${d.units?` · ${d.units.toLocaleString()}세대`:''}</div>
-        <div style="font-size:10px;color:#555;margin-bottom:6px;padding:5px 7px;background:#f4f7fb;border-radius:4px;line-height:1.6">
-          <b style="color:#222">임대동</b><br>
-          <span style="color:${d.mixed?'#c05000':'#1a6a3a'}">${d.rentalDongs}</span>
-          ${d.mixed?'<span style="font-size:9px;color:#e07000;margin-left:3px">(혼합단지)</span>':''}
-        </div>
-        <a class="lp-btn" href="${naverUrl(d.name, d.addr)}" target="_blank" style="background:#03c75a;color:#fff">네이버 지도에서 보기</a>
-      `);
-      marker.on('click', () => selectItem(d.id));
-      markerMap[d.id] = marker;
-      if(ldEl) ldEl.remove();
-    } else {
-      if(ldEl) { ldEl.textContent='좌표 변환 실패'; ldEl.style.color='#e00'; }
-    }
+      </div>
 
-    if(loadedCount < 12) await new Promise(r => setTimeout(r, 1100)); // Nominatim 1req/sec
+      <div class="card-expand">
+        <div class="memo-section" onclick="event.stopPropagation()">
+          <div class="memo-label">📝 현장 메모</div>
+          <textarea class="memo-ta"
+            placeholder="임대동 번호, 관리사무소 연락처, 특이사항 등 기록하세요…"
+            oninput="saveMemoDebounce(${d.id}, this.value)">${memo}</textarea>
+          <div class="memo-status" id="ms-${d.id}">저장됨 ✓</div>
+        </div>
+        <a href="${naverUrl(d)}" target="_blank" class="naver-btn" onclick="event.stopPropagation()">🗺️ 네이버 지도에서 보기</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('open','focused'));
+  if (!wasOpen) {
+    card.classList.add('open','focused');
+    if (markers[id]) { markers[id].openPopup(); map.panTo(markers[id].getLatLng()); }
   }
-
-  const st = document.getElementById('status');
-  st.className='done';
-  st.innerHTML='12개 단지 모두 표시 완료';
-
-  // Fit map to all markers
-  const coords = Object.values(markerMap).map(m => m.getLatLng());
-  if(coords.length > 1) map.fitBounds(L.latLngBounds(coords), {padding:[40,40]});
 }
 
-function selectItem(id) {
-  document.querySelectorAll('.si').forEach(e => e.classList.remove('act'));
-  const el = document.getElementById(`si${id}`);
-  if(el) { el.classList.add('act'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+// ─── 통계 ───
+function renderStats() {
+  const confirmed = DATA.filter(d => d.rentalConfirmed).length;
+  const chk = DATA.filter(d => !d.rentalConfirmed).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-chip"><div class="chip-dot" style="background:#00B493"></div>확인완료 ${confirmed}개</div>
+    <div class="stat-chip"><div class="chip-dot" style="background:#F38701"></div>현장확인 ${chk}개</div>`;
 }
 
-loadAll();
+// ─── Geocoding ───
+let geocodedCount = 0;
+async function geocodeAll() {
+  for (const d of DATA) { await geocodeOne(d); await new Promise(r => setTimeout(r, 1100)); }
+}
+async function geocodeOne(d) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(d.addr)}&limit=1&accept-language=ko`,
+      { headers: { 'User-Agent': 'DongjakSH-Map/2.0' } });
+    const json = await res.json();
+    if (json.length) {
+      const m = L.marker([+json[0].lat, +json[0].lon], { icon: makeMarkerIcon(d) }).addTo(map);
+      m.bindPopup(makePopup(d), { maxWidth:260 });
+      m.on('click', () => {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('focused'));
+        const card = document.getElementById('card-'+d.id);
+        if (card) { card.classList.add('focused'); card.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+      });
+      markers[d.id] = m;
+    }
+  } catch(e) {}
+  geocodedCount++;
+  document.getElementById('loading-bar').style.width = (geocodedCount/DATA.length*100)+'%';
+  if (geocodedCount >= DATA.length) setTimeout(() => { document.getElementById('loading-bar').style.opacity='0'; }, 600);
+}
+
+// ─── 초기화 ───
+loadMemos();
+renderStats();
+renderList();
+geocodeAll();
 </script>
 </body>
 </html>
