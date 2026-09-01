@@ -139,7 +139,7 @@
     .rental-label { color:#B0B8C1; font-size:11px; }
     .rental-val { font-weight:800; }
     .rv-ok { color:#191F28; }
-    .rv-chk { color:#F38701; font-weight:900; }
+    .rv-chk { color:#F38701; }
 
     /* 메모 영역 - 항상 표시 */
     .card-bottom {
@@ -242,7 +242,6 @@
       </div>
       <button id="map-toggle" onclick="enterMapMode()">🗺️ 지도</button>
     </div>
-    <div class="stats-row" id="stats-row"></div>
   </div>
 
   <div id="filter-bar">
@@ -370,7 +369,7 @@ function makePopup(d) {
     + '</div></div>'
     + '<div style="margin:0 16px 12px;padding:9px 12px;border-radius:10px;background:' + (ok ? '#E8FFF5' : '#FFF4E8') + '">'
     + '<div style="font-size:10px;font-weight:700;color:' + (ok ? '#00B493' : '#F38701') + ';margin-bottom:3px">임대동' + (d.mixed ? ' (혼합단지)' : '') + '</div>'
-    + '<div style="font-size:13px;font-weight:800;color:' + (ok ? '#191F28' : '#F38701') + '">' + (ok ? '' : '⚠️ ') + d.rentalDongs + '</div>'
+    + '<div style="font-size:13px;font-weight:800;color:' + (ok ? '#191F28' : '#F38701') + '">' + (ok ? '✅ ' : '⚠️ ') + d.rentalDongs + '</div>'
     + '</div>'
     + '<div style="font-size:10px;color:#B0B8C1;padding:0 16px 12px;line-height:1.5">' + d.addr + '</div>'
     + '<a href="' + naverUrl(d) + '" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px;background:#03C75A;color:#fff;text-decoration:none;font-size:13px;font-weight:700;font-family:inherit">🗺️ 네이버 지도에서 보기</a>'
@@ -414,7 +413,7 @@ function renderList() {
       +     '</div>'
       +     '<div class="rental-row">'
       +       '<span class="rental-label">임대동</span>'
-      +       '<span class="rental-val ' + (ok ? 'rv-ok' : 'rv-chk') + '">' + (ok ? '' : '⚠️ ') + d.rentalDongs + '</span>'
+      +       '<span class="rental-val ' + (ok ? 'rv-ok' : 'rv-chk') + '">' + (ok ? '✅ ' : '⚠️ ') + d.rentalDongs + '</span>'
       +     '</div>'
       +   '</div>'
       + '</div>'
@@ -456,11 +455,7 @@ function focusCard(id) {
 }
 
 // ── 통계 ──
-function renderStats() {
-  var chk = DATA.filter(function(d){ return !d.rentalConfirmed; }).length;
-  document.getElementById('stats-row').innerHTML =
-    '<div class="stat-chip">⚠️ 임대동 현장확인 필요 ' + chk + '개</div>';
-}
+function renderStats() {}
 
 // ── Geocoding ──
 var geocodedCount = 0;
