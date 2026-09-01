@@ -27,7 +27,40 @@
       background: #F2F4F6;
       overflow: hidden;
       border-right: 1px solid #E5E8EB;
+      transition: width 0.25s cubic-bezier(0.4,0,0.2,1),
+                  min-width 0.25s cubic-bezier(0.4,0,0.2,1);
     }
+    body.sidebar-collapsed #sidebar {
+      width: 0;
+      min-width: 0;
+      border-right: none;
+      overflow: hidden;
+    }
+
+    /* 사이드바 토글 버튼 (PC only) */
+    #sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 400px;
+      width: 22px;
+      height: 48px;
+      background: #fff;
+      border: 1px solid #E5E8EB;
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #8B95A1;
+      z-index: 500;
+      transition: left 0.25s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 2px 0 6px rgba(0,0,0,0.07);
+    }
+    #sidebar-toggle:hover { background: #F2F4F6; color: #191F28; }
+    body.sidebar-collapsed #sidebar-toggle { left: 0; }
 
     /* 헤더 */
     #header {
@@ -204,6 +237,11 @@
       width:0%; transition:width 0.4s ease; z-index:9998;
     }
 
+    /* 모바일에서는 토글 버튼 숨김 */
+    @media (max-width: 768px) {
+      #sidebar-toggle { display: none; }
+    }
+
     /* ── 모바일 ── */
     @media (max-width: 768px) {
       body { flex-direction: column; }
@@ -232,6 +270,7 @@
 <div id="loading-bar"></div>
 <div id="toast"></div>
 <button id="back-btn" onclick="exitMapMode()">← 목록</button>
+<button id="sidebar-toggle" onclick="toggleSidebar()" title="사이드바 접기/펼치기">◀</button>
 
 <div id="sidebar">
   <div id="header">
@@ -490,6 +529,13 @@ async function geocodeOne(d) {
   if (geocodedCount >= DATA.length) {
     setTimeout(function(){ document.getElementById('loading-bar').style.opacity = '0'; }, 600);
   }
+}
+
+// ── 사이드바 토글 (PC) ──
+function toggleSidebar() {
+  var collapsed = document.body.classList.toggle('sidebar-collapsed');
+  document.getElementById('sidebar-toggle').textContent = collapsed ? '▶' : '◀';
+  setTimeout(function(){ map.invalidateSize(); }, 260);
 }
 
 // ── 초기화 ──
