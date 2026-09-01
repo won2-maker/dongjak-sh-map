@@ -51,8 +51,8 @@
     .stats-row { display:flex; gap:6px; margin-top:10px; }
     .stat-chip {
       display:flex; align-items:center; gap:4px;
-      background:#F2F4F6; border-radius:20px;
-      padding:4px 10px; font-size:11px; color:#4E5968; font-weight:700;
+      background:#FFF4E8; border-radius:20px;
+      padding:4px 10px; font-size:11px; color:#E08000; font-weight:700;
     }
     .chip-dot { width:6px; height:6px; border-radius:50%; }
 
@@ -138,8 +138,8 @@
     .rental-row { display:flex; align-items:center; gap:5px; font-size:12px; }
     .rental-label { color:#B0B8C1; font-size:11px; }
     .rental-val { font-weight:800; }
-    .rv-ok { color:#00B493; }
-    .rv-chk { color:#F38701; }
+    .rv-ok { color:#191F28; }
+    .rv-chk { color:#F38701; font-weight:900; }
 
     /* 메모 영역 - 항상 표시 */
     .card-bottom {
@@ -249,8 +249,7 @@
     <button class="filter-btn active" onclick="setFilter('all',this)">전체</button>
     <button class="filter-btn" onclick="setFilter('무파사',this)">🦁 무파사</button>
     <button class="filter-btn" onclick="setFilter('율리안',this)">🎖 율리안</button>
-    <button class="filter-btn" onclick="setFilter('check',this)">⚠️ 현장확인</button>
-    <button class="filter-btn" onclick="setFilter('confirmed',this)">✅ 확인완료</button>
+    <button class="filter-btn" onclick="setFilter('check',this)">⚠️ 현장확인 필요</button>
   </div>
 
   <div id="list"></div>
@@ -371,7 +370,7 @@ function makePopup(d) {
     + '</div></div>'
     + '<div style="margin:0 16px 12px;padding:9px 12px;border-radius:10px;background:' + (ok ? '#E8FFF5' : '#FFF4E8') + '">'
     + '<div style="font-size:10px;font-weight:700;color:' + (ok ? '#00B493' : '#F38701') + ';margin-bottom:3px">임대동' + (d.mixed ? ' (혼합단지)' : '') + '</div>'
-    + '<div style="font-size:13px;font-weight:800;color:' + (ok ? '#00B493' : '#F38701') + '">' + (ok ? '✅' : '⚠️') + ' ' + d.rentalDongs + '</div>'
+    + '<div style="font-size:13px;font-weight:800;color:' + (ok ? '#191F28' : '#F38701') + '">' + (ok ? '' : '⚠️ ') + d.rentalDongs + '</div>'
     + '</div>'
     + '<div style="font-size:10px;color:#B0B8C1;padding:0 16px 12px;line-height:1.5">' + d.addr + '</div>'
     + '<a href="' + naverUrl(d) + '" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px;background:#03C75A;color:#fff;text-decoration:none;font-size:13px;font-weight:700;font-family:inherit">🗺️ 네이버 지도에서 보기</a>'
@@ -415,7 +414,7 @@ function renderList() {
       +     '</div>'
       +     '<div class="rental-row">'
       +       '<span class="rental-label">임대동</span>'
-      +       '<span class="rental-val ' + (ok ? 'rv-ok' : 'rv-chk') + '">' + (ok ? '✅' : '⚠️') + ' ' + d.rentalDongs + '</span>'
+      +       '<span class="rental-val ' + (ok ? 'rv-ok' : 'rv-chk') + '">' + (ok ? '' : '⚠️ ') + d.rentalDongs + '</span>'
       +     '</div>'
       +   '</div>'
       + '</div>'
@@ -458,11 +457,9 @@ function focusCard(id) {
 
 // ── 통계 ──
 function renderStats() {
-  var confirmed = DATA.filter(function(d){ return d.rentalConfirmed; }).length;
   var chk = DATA.filter(function(d){ return !d.rentalConfirmed; }).length;
   document.getElementById('stats-row').innerHTML =
-    '<div class="stat-chip"><div class="chip-dot" style="background:#00B493"></div>확인완료 ' + confirmed + '개</div>'
-    + '<div class="stat-chip"><div class="chip-dot" style="background:#F38701"></div>현장확인 ' + chk + '개</div>';
+    '<div class="stat-chip">⚠️ 임대동 현장확인 필요 ' + chk + '개</div>';
 }
 
 // ── Geocoding ──
